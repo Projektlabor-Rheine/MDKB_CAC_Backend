@@ -107,6 +107,7 @@ public class Game {
 	 *            the player
 	 */
 	public void onPlayerRemoved(Player p) {
+		// TODO: Rewrite removed into taking an array or list of players to reduce packets
 		// Checks if the controller got removed
 		if (this.controller.isPlayerController(p)) {
 			// Searches the next controller
@@ -272,17 +273,19 @@ public class Game {
 	 * such as disconnected players
 	 */
 	public void onCleanup() {
-		// Removes any players that have been disconnected for more than 30 seconds
-		this.getPlayers().stream()
-				// Filters all player that have been disconnected for more than 30 seconds
-				.filter(p -> p.getConnection() == null && p.getConnectionTimer().hasReached(Start.MAX_DISCONNECT_TIME))
-				// Removes them from the list
-				.forEach(p -> {
-					// Removes the player from the list
-					this.getPlayers().remove(p);
-					// Executes the on removed event
-					this.onPlayerRemoved(p);
-				});
+		// Collects all timeouted players
+		Player[] timeouted = this.getPlayers().stream()
+			// Filters all player that have been disconnected for more than 30 seconds
+			.filter(p -> p.getConnection() == null && p.getConnectionTimer().hasReached(Start.MAX_DISCONNECT_TIME))
+			// Collects them
+			.toArray(Player[]::new);
+		
+		// Removes them from the list
+		for(Player p : timeouted) {
+			this.getPlayers().remove(p);
+			// Executes the on removed event
+			this.onPlayerRemoved(p);
+		};
 	}
 
 	/**
@@ -319,13 +322,13 @@ public class Game {
 	private void nextController(Player p) {
 
 		// Moves the controller to the back of the list if he exists
-		if (this.controller.doesControllerExists()) {
+		if (this.controller.doesControllerExists() && this.getPlayers().contains(this.controller.getPlayer())) {
 			this.getPlayers().remove(this.controller.getPlayer());
 			this.getPlayers().add(this.controller.getPlayer());
 		}
 
 		// Moves the new controller to the top of the list if he exists
-		if (p != null) {
+		if (p != null && this.getPlayers().contains(p)) {
 			this.getPlayers().remove(p);
 			this.getPlayers().add(0, p);
 		}

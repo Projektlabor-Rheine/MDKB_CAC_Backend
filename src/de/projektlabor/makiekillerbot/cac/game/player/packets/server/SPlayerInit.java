@@ -33,6 +33,8 @@ public class SPlayerInit implements IPacketServer<Player> {
 	
 		// Writes the players profile
 		packet.put("profile", this.convertPlayerToProfile(this.profile));
+		
+		// TODO: Implement all other infos
 	}
 	
 	/**

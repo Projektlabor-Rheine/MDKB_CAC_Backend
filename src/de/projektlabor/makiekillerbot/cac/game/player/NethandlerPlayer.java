@@ -17,7 +17,10 @@ import de.projektlabor.makiekillerbot.cac.connection.Nethandler;
 import de.projektlabor.makiekillerbot.cac.connection.packets.IPacketServer;
 import de.projektlabor.makiekillerbot.cac.game.Game;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.client.CPlayerInitReqeust;
+import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGameAchievements;
+import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGameController;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGamePlayers;
+import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGameRaspiStatus;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerInit;
 
 @WebSocket
@@ -62,7 +65,10 @@ public class NethandlerPlayer extends Nethandler<Player> {
 	public Map<Class<? extends IPacketServer<Player>>, Integer> registerServerPackets() {
 		return registerOf(
 			register(1,SPlayerGamePlayers.class),
-			register(2,SPlayerInit.class)
+			register(2,SPlayerInit.class),
+			register(3,SPlayerGameAchievements.class),
+			register(4,SPlayerGameController.class),
+			register(5,SPlayerGameRaspiStatus.class)
 		);
 	}
 
@@ -92,11 +98,11 @@ public class NethandlerPlayer extends Nethandler<Player> {
 	@Override
 	public void onDisconnect(Session session, int statusCode, String reason) {
 		// Searches the player
-		Player p = this.getExistingPlayers().stream().filter(i -> i.getConnection().equals(session)).findFirst().get();
-
+		Player p = this.getExistingPlayers().stream().filter(i -> session.equals(i.getConnection())).findFirst().get();
+		
 		// Removes the session
 		p.setConnection(null);
-
+		
 		// Executes the event
 		this.game.onPlayerDisconnected(p);
 	}

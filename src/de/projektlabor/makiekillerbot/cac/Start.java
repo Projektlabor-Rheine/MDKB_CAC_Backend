@@ -33,7 +33,7 @@ public class Start {
 	public static final long CONTROL_TIME = 1000*60*5;
 	
 	// How long it takes to remove a disconnected player that hasn't rejoined
-	public static final long MAX_DISCONNECT_TIME = 30*1000;
+	public static final long MAX_DISCONNECT_TIME = 10*1000;
 	
 	// Default error handler for most 404 pages
 	public static Route ROUTE_NOT_FOUND_HANDLER = (req,res)->{
@@ -103,9 +103,4 @@ public class Start {
 		// Creates a simple game-loop thread
 		new Thread(new Gameloop(game)).start();
     }
-
-
-	public void loadConfig() {
-		
-	}
 }
