@@ -1,4 +1,4 @@
-package de.projektlabor.makiekillerbot.cac.raspi;
+package de.projektlabor.makiekillerbot.cac.game.pi;
 
 import org.eclipse.jetty.websocket.api.Session;
 

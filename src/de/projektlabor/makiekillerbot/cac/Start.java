@@ -9,8 +9,8 @@ import org.json.JSONException;
 import de.projektlabor.makiekillerbot.cac.achievements.AchievementManager;
 import de.projektlabor.makiekillerbot.cac.game.Game;
 import de.projektlabor.makiekillerbot.cac.game.logic.Gameloop;
+import de.projektlabor.makiekillerbot.cac.game.pi.NethandlerPi;
 import de.projektlabor.makiekillerbot.cac.game.player.NethandlerPlayer;
-import de.projektlabor.makiekillerbot.cac.raspi.NethandlerPi;
 import spark.Route;
 
 public class Start {
