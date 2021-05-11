@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 
 import org.eclipse.jetty.websocket.api.Session;
@@ -25,16 +24,20 @@ import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerInit
 public class NethandlerPlayer extends Nethandler<Player> {
 
 	// Reference to the game
-	private Game game;
+	private final Game game;
+
+	// Config with the loaded player settings
+	private PlayerConfig pconfig;
 
 	// Contains all current connected and timeouted players
-	private List<Player> existingPlayers = Collections.synchronizedList(new ArrayList<Player>());
+	private final List<Player> existingPlayers = Collections.synchronizedList(new ArrayList<Player>());
 
 	/**
 	 * @param game
 	 *            reference to the main game
 	 */
-	public NethandlerPlayer(Game game) {
+	public NethandlerPlayer(Game game,PlayerConfig config) {
+		this.pconfig = config;
 		this.game = game;
 		// Updates the game's connector
 		game.setConnector(this);
@@ -70,7 +73,7 @@ public class NethandlerPlayer extends Nethandler<Player> {
 
 		// Gets or creates the player
 		Player p = optPlayer.isPresent() ? optPlayer.get()
-				: new Player(this, this.generateUnusedUUID(), this.generateUnusedName(),session, this.existingPlayers.size());
+				: new Player(this, this.generateUnusedUUID(), this.pconfig.getRandomPlayerName(),session, this.existingPlayers.size());
 
 		// Checks if the player got found
 		if (optPlayer.isPresent()) {
@@ -96,24 +99,6 @@ public class NethandlerPlayer extends Nethandler<Player> {
 
 		// Executes the event
 		this.game.onPlayerDisconnected(p);
-	}
-	
-	/**
-	 * Generates a random player-name that hasn't been used before
-	 */
-	private String generateUnusedName() {
-		while(true) {
-			// TODO: Create better name generation. Maybe we can load them dynamically from a file
-			// Generates a name
-			String name = "Name:"+ThreadLocalRandom.current().nextLong();
-			
-			// Checks if any player already uses that id
-			if (this.game.getPlayers().stream().anyMatch(i -> i.getUsername().equalsIgnoreCase(name)))
-				continue;
-
-			// The uuid is unused, use it
-			return name;
-		}
 	}
 	
 	/**
