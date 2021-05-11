@@ -6,6 +6,7 @@ import java.util.Optional;
 import de.projektlabor.makiekillerbot.cac.Start;
 import de.projektlabor.makiekillerbot.cac.achievements.Achievement;
 import de.projektlabor.makiekillerbot.cac.achievements.AchievementManager;
+import de.projektlabor.makiekillerbot.cac.config.Config;
 import de.projektlabor.makiekillerbot.cac.connection.packets.IPacketServer;
 import de.projektlabor.makiekillerbot.cac.game.logic.Controller;
 import de.projektlabor.makiekillerbot.cac.game.pi.RaspberryPi;
@@ -34,6 +35,8 @@ public class Game {
 	// The controller of the pi
 	private Controller controller = new Controller();
 
+	
+	
 	// If there is currently no other controller and onjoin additional 10
 	// leave-seconds should be added until the next one takes over.
 	private boolean performJoinAction = false;
@@ -52,8 +55,12 @@ public class Game {
 
 	// The manager for all achievements
 	private AchievementManager avmtManager;
+	
+	// Reference to the config
+	private Config config;
 
-	public Game(AchievementManager avmtManager) {
+	public Game(Config config,AchievementManager avmtManager) {
+		this.config=config;
 		this.avmtManager = avmtManager;
 		avmtManager.setGameReference(this);
 		this.initUpdaters();
@@ -387,5 +394,9 @@ public class Game {
 	}
 	public void setRaspberrypi(RaspberryPi raspberrypi) {
 		this.raspberrypi = raspberrypi;
+	}
+	
+	public Config getConfig() {
+		return this.config;
 	}
 }
