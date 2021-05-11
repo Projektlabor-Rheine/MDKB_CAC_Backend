@@ -1,6 +1,9 @@
 package de.projektlabor.makiekillerbot.cac.game.pi;
 
 import org.eclipse.jetty.websocket.api.Session;
+import org.json.JSONObject;
+
+import de.projektlabor.makiekillerbot.cac.connection.packets.IPacketServer;
 
 /**
  * This is the raspberry pi controller class.
@@ -17,6 +20,40 @@ public class RaspberryPi {
 	
 	// Since when the raspi is connected (or disconnected)
 	private long connectedSince;
+	
+	// Reference to the nethandler
+	private final NethandlerPi nethandler;
+	
+	public RaspberryPi(NethandlerPi nethandler) {
+		this.nethandler = nethandler;
+	}
+	
+	
+	/**
+	 * Sends the given raw packet to the pi.
+	 * Sends the packet async
+	 * 
+	 * @param pkt the packet to send
+	 */
+	public void sendRawPacket(String pkt) {
+		// Tries to deliver the packet
+		this.connection.getRemote().sendStringByFuture(pkt);
+	}
+
+	/**
+	 * Sends the packet to the pi
+	 * 
+	 * @param packet
+	 *            the packet to send to the pi
+	 */
+	public void sendPacket(IPacketServer<RaspberryPi> packet) {
+		// Gets the final packet
+		JSONObject finPkt = this.nethandler.getFinalizedPacket(packet);
+
+		// Sends the raw packet-data
+		this.sendRawPacket(finPkt.toString());
+	}
+	
 	
 	public long getConnectionTimestamp() {
 		return this.connectedSince;

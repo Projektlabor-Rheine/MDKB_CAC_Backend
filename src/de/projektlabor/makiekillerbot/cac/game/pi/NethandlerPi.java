@@ -25,8 +25,12 @@ public class NethandlerPi extends Nethandler<RaspberryPi>{
 	 * @param game reference to the main game
 	 */
 	public NethandlerPi(Game game) {
+		// Creates the pi instance
+		this.pi = new RaspberryPi(this);
+		
+		// Sets the references
 		this.logic=game;
-		this.pi=game.getRaspberrypi();
+		game.setRaspberrypi(this.pi);
 		
 		this.initNethandler();
 	}

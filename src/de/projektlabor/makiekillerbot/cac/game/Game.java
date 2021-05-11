@@ -29,7 +29,7 @@ import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerInit
 public class Game {
 
 	// The raspberry pi that controlls the bot and is used for the communication
-	private RaspberryPi raspberrypi = new RaspberryPi();
+	private RaspberryPi raspberrypi;
 
 	// The controller of the pi
 	private Controller controller = new Controller();
@@ -384,5 +384,8 @@ public class Game {
 
 	public void setConnector(NethandlerPlayer connector) {
 		this.connector = connector;
+	}
+	public void setRaspberrypi(RaspberryPi raspberrypi) {
+		this.raspberrypi = raspberrypi;
 	}
 }

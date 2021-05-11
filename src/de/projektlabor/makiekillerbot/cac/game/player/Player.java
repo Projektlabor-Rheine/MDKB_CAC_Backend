@@ -42,8 +42,7 @@ public class Player{
 	}
 
 	/**
-	 * Sends the given raw packet to the player. If it failed to deliver, the player
-	 * gets disconnected so that he can reconnect.
+	 * Sends the given raw packet to the player.
 	 * Sends the packet async
 	 * 
 	 * @param pkt the packet to send

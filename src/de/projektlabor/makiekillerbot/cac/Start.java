@@ -1,6 +1,11 @@
 package de.projektlabor.makiekillerbot.cac;
 
-import static spark.Spark.*;
+import static spark.Spark.awaitInitialization;
+import static spark.Spark.get;
+import static spark.Spark.init;
+import static spark.Spark.port;
+import static spark.Spark.staticFiles;
+import static spark.Spark.webSocket;
 
 import java.io.IOException;
 
