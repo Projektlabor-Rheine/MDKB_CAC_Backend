@@ -1,5 +1,6 @@
 package de.projektlabor.makiekillerbot.cac.game;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,12 +107,15 @@ public class Game {
 	 * @param p
 	 *            the player
 	 */
-	public void onPlayerRemoved(Player p) {
-		// TODO: Rewrite removed into taking an array or list of players to reduce packets
+	public void onPlayerRemoved(Player... players) {
+		
+		// Gets the controller that has been removed; empty if the controller hasn't been removed
+		Optional<Player> ctrl = Arrays.stream(players).filter(this.controller::isPlayerController).findAny();
+		
 		// Checks if the controller got removed
-		if (this.controller.isPlayerController(p)) {
+		if (ctrl.isPresent()) {
 			// Searches the next controller
-			Optional<Player> nxt = this.searchNextConnectedPlayer(p);
+			Optional<Player> nxt = this.searchNextConnectedPlayer(ctrl.get());
 
 			// Sets the next controller either to a valid one or null
 			this.nextController(nxt.isPresent() ? nxt.get() : null);
@@ -281,11 +285,11 @@ public class Game {
 			.toArray(Player[]::new);
 		
 		// Removes them from the list
-		for(Player p : timeouted) {
+		for(Player p : timeouted)
 			this.getPlayers().remove(p);
-			// Executes the on removed event
-			this.onPlayerRemoved(p);
-		};
+		
+		// Executes the on removed event
+		this.onPlayerRemoved(timeouted);
 	}
 
 	/**
