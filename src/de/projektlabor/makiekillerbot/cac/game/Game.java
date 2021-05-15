@@ -399,6 +399,10 @@ public class Game {
 		this.raspberrypi = raspberrypi;
 	}
 	
+	public Controller getController() {
+		return this.controller;
+	}
+	
 	public Config getConfig() {
 		return this.config;
 	}

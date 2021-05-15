@@ -30,11 +30,13 @@ public class SPlayerInit implements IPacketServer<Player> {
 	public void writePacketData(JSONObject packet) {
 		// Writes the game's players
 		new SPlayerGamePlayers(this.game.getPlayers()).writePacketData(packet);
-	
+		// Writes the games achievements
+		new SPlayerGameAchievements(this.game.getAchievementManager().getLoadedAchievements()).writePacketData(packet);
+		// Writes the game-controller
+		new SPlayerGameController(this.game.getController()).writePacketData(packet);
+		
 		// Writes the players profile
 		packet.put("profile", this.convertPlayerToProfile(this.profile));
-		
-		// TODO: Implement all other infos
 	}
 	
 	/**
