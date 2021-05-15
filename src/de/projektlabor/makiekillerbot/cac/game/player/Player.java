@@ -11,8 +11,6 @@ import de.projektlabor.makiekillerbot.cac.util.Timer;
 
 public class Player{
 	
-	// TODO: Maybe implement a color that the player can use. Used to indicated duplicated names
-	
 	// The unique id of the player. Used to relogin a player after he timed out with
 	// a session
 	private UUID uuid;
@@ -22,6 +20,9 @@ public class Player{
 
 	// The player's username
 	private String username;
+	
+	// The player's color
+	private int color;
 	
 	// The websocket-connection of the player
 	// Can be null if the player timed out
@@ -33,8 +34,9 @@ public class Player{
 	// Connection-timer
 	private Timer connectionTimer = new Timer();
 
-	public Player(Nethandler<Player> nethandler, UUID uuid,String username, Session connection,int queueIndex) {
+	public Player(Nethandler<Player> nethandler, UUID uuid,String username,int color, Session connection,int queueIndex) {
 		this.nethandler = nethandler;
+		this.color=color;
 		this.uuid = uuid;
 		this.connection = connection;
 		this.queueIndex=queueIndex;
@@ -82,6 +84,9 @@ public class Player{
 		return this.username;
 	}
 	
+	public int getColor() {
+		return this.color;
+	}
 	
 
 	public Session getConnection() {

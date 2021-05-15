@@ -79,7 +79,7 @@ public class NethandlerPlayer extends Nethandler<Player> {
 
 		// Gets or creates the player
 		Player p = optPlayer.isPresent() ? optPlayer.get()
-				: new Player(this, this.generateUnusedUUID(), this.pconfig.getRandomPlayerName(),session, this.existingPlayers.size());
+				: new Player(this, this.generateUnusedUUID(),this.pconfig.getRandomPlayerName(), this.pconfig.getRandomPlayerColor(),session, this.existingPlayers.size());
 
 		// Checks if the player got found
 		if (optPlayer.isPresent()) {
