@@ -1,10 +1,13 @@
 package de.projektlabor.makiekillerbot.cac.game.logic;
 
-import de.projektlabor.makiekillerbot.cac.Start;
+import de.projektlabor.makiekillerbot.cac.game.GameConfig;
 import de.projektlabor.makiekillerbot.cac.game.player.Player;
 
 public class Controller {
 
+	// Config
+	private final GameConfig cfg;
+	
 	// The current controlling player
 	// Can be null if no player is the current controller
 	private Player player;
@@ -15,10 +18,14 @@ public class Controller {
 	// Current expectation until the player will be the controller
 	private long controllerUntil;
 	
+	public Controller(GameConfig cfg) {
+		this.cfg=cfg;
+	}
+	
 	public void nextController(Player player) {
 		this.player = player;
 		this.controllerSince = System.currentTimeMillis();
-		this.controllerUntil = System.currentTimeMillis() + Start.CONTROL_TIME;
+		this.controllerUntil = System.currentTimeMillis() + this.cfg.getControllingTime();
 	}
 	
 	public long getControllerUntil() {

@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import de.projektlabor.makiekillerbot.cac.Start;
 import de.projektlabor.makiekillerbot.cac.achievements.Achievement;
 import de.projektlabor.makiekillerbot.cac.achievements.AchievementManager;
 import de.projektlabor.makiekillerbot.cac.config.Config;
@@ -34,7 +33,7 @@ public class Game {
 	private RaspberryPi raspberrypi;
 
 	// The controller of the pi
-	private Controller controller = new Controller();
+	private Controller controller;
 
 	
 	
@@ -57,12 +56,17 @@ public class Game {
 	// The manager for all achievements
 	private AchievementManager avmtManager;
 	
+	// Game-config
+	private GameConfig gameConfig;
+	
 	// Reference to the config
 	private Config config;
 
-	public Game(Config config,AchievementManager avmtManager) {
+	public Game(Config config,GameConfig gameConfig,AchievementManager avmtManager) {
 		this.config=config;
+		this.gameConfig=gameConfig;
 		this.avmtManager = avmtManager;
+		this.controller = new Controller(gameConfig);
 		avmtManager.setGameReference(this);
 		this.initUpdaters();
 	}
@@ -175,7 +179,7 @@ public class Game {
 		// Checks if a previous controller has already outrun his time
 		else if (this.performJoinAction) {
 			this.performJoinAction = false;
-			this.controller.setControllerUntil(System.currentTimeMillis() + Start.ADDITIONAL_CONTROL_TIME_ON_EXIT);
+			this.controller.setControllerUntil(System.currentTimeMillis() + this.gameConfig.getControllerTimeWhenNewJoin());
 
 			// Sends the player-update packet to all players except the newly joined one
 			this.puPlayer.sendAndReset(p);
@@ -280,7 +284,7 @@ public class Game {
 		// Collects all timeouted players
 		Player[] timeouted = this.getPlayers().stream()
 			// Filters all player that have been disconnected for more than 30 seconds
-			.filter(p -> p.getConnection() == null && p.getConnectionTimer().hasReached(Start.MAX_DISCONNECT_TIME))
+			.filter(p -> p.getConnection() == null && p.getConnectionTimer().hasReached(this.gameConfig.getRejoinTime()))
 			// Collects them
 			.toArray(Player[]::new);
 		
