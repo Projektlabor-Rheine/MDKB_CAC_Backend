@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 import de.projektlabor.makiekillerbot.cac.config.SubConfig;
 
-public class PlayerConfig implements SubConfig{
+public class PlayerConfig extends SubConfig{
 
 	// Contains all loaded valid usernames
 	private String[] loadedNames;

@@ -15,7 +15,7 @@ import spark.Request;
 import spark.Response;
 import spark.Spark;
 
-public class AchievementManager implements SubConfig{
+public class AchievementManager extends SubConfig{
 
 	// List with all loaded achievements
 	private List<Achievement> loadedAchievements = Collections.synchronizedList(new ArrayList<Achievement>());

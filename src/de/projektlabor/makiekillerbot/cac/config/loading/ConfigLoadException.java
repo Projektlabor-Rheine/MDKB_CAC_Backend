@@ -1,4 +1,4 @@
-package de.projektlabor.makiekillerbot.cac.config;
+package de.projektlabor.makiekillerbot.cac.config.loading;
 
 public class ConfigLoadException extends Exception{
 	private static final long serialVersionUID = -7869625312409573730L;
