@@ -11,6 +11,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import de.projektlabor.makiekillerbot.cac.connection.Nethandler;
 import de.projektlabor.makiekillerbot.cac.connection.packets.IPacketServer;
 import de.projektlabor.makiekillerbot.cac.game.Game;
+import de.projektlabor.makiekillerbot.cac.game.pi.packets.server.SPiControllsupdate;
 
 @WebSocket
 public class NethandlerPi extends Nethandler<RaspberryPi>{
@@ -65,14 +66,14 @@ public class NethandlerPi extends Nethandler<RaspberryPi>{
 
 	@Override
 	public Map<Integer, Entry<Class<?>, BiConsumer<RaspberryPi, Object>>> registerClientPackets() {
-		// TODO Implement pi-packets
-		return null;
+		return registerC();
 	}
 
 	@Override
 	public Map<Class<? extends IPacketServer<RaspberryPi>>, Integer> registerServerPackets() {
-		// TODO Implement pi-packets
-		return null;
+		return registerS(
+			registerS(1,SPiControllsupdate.class)
+		);
 	}
 
 	@Override

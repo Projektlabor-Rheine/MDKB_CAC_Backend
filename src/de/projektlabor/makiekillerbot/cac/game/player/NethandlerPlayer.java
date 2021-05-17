@@ -56,19 +56,19 @@ public class NethandlerPlayer extends Nethandler<Player> {
 
 	@Override
 	public Map<Integer, Entry<Class<?>, BiConsumer<Player, Object>>> registerClientPackets() {
-		return registerOfX(
-			registerX(1,CPlayerInitReqeust.class,this.game::onPlayerSendInitRequest)
+		return registerC(
+			registerC(1,CPlayerInitReqeust.class,this.game::onPlayerSendInitRequest)
 		);
 	}
 
 	@Override
 	public Map<Class<? extends IPacketServer<Player>>, Integer> registerServerPackets() {
-		return registerOf(
-			register(1,SPlayerGamePlayers.class),
-			register(2,SPlayerInit.class),
-			register(3,SPlayerGameAchievements.class),
-			register(4,SPlayerGameController.class),
-			register(5,SPlayerGameRaspiStatus.class)
+		return registerS(
+			registerS(1,SPlayerGamePlayers.class),
+			registerS(2,SPlayerInit.class),
+			registerS(3,SPlayerGameAchievements.class),
+			registerS(4,SPlayerGameController.class),
+			registerS(5,SPlayerGameRaspiStatus.class)
 		);
 	}
 

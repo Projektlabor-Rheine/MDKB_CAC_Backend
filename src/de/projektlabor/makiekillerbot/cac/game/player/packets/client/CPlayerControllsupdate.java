@@ -14,7 +14,7 @@ import de.projektlabor.makiekillerbot.cac.game.player.Player;
 public class CPlayerControllsupdate implements IPacketClient<Player>{
 
 	// The string-codes in the order that they will be read into the pressed keys array
-	private static final String[] KEYS = {"w","a","s","d","up","down","left","right"};
+	public static final String[] KEYS = {"w","a","s","d","up","down","left","right"};
 
 	// The indexes of the key-state on the pressed array
 	// eg. pressedKeys[KEY_W] would return if the w-key is pressed

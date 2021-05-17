@@ -16,7 +16,6 @@ import org.json.JSONObject;
 
 import de.projektlabor.makiekillerbot.cac.connection.packets.IPacketClient;
 import de.projektlabor.makiekillerbot.cac.connection.packets.IPacketServer;
-import de.projektlabor.makiekillerbot.cac.game.player.Player;
 import de.projektlabor.makiekillerbot.cac.util.Triple;
 
 @WebSocket
@@ -149,24 +148,24 @@ public abstract class Nethandler<Type> {
 	 */
 
 	@SuppressWarnings("unchecked")
-	protected final <T extends IPacketServer<Player>> Triple<Integer, Class<?>, BiConsumer<Player,Object>> registerX(
-			Integer id, Class<?> packetType, BiConsumer<Player,T> handler) {
-		 return new Triple<Integer, Class<?>, BiConsumer<Player,Object>>(id, packetType, (a,b)->handler.accept(a, (T)b));
+	protected final <T extends IPacketServer<Type>> Triple<Integer, Class<?>, BiConsumer<Type,Object>> registerC(
+			Integer id, Class<?> packetType, BiConsumer<Type,T> handler) {
+		 return new Triple<Integer, Class<?>, BiConsumer<Type,Object>>(id, packetType, (a,b)->handler.accept(a, (T)b));
 	}
 
-	protected final Entry<Class<? extends IPacketServer<Player>>, Integer> register(Integer id,
-			Class<? extends IPacketServer<Player>> packetType) {
+	protected final Entry<Class<? extends IPacketServer<Type>>, Integer> registerS(Integer id,
+			Class<? extends IPacketServer<Type>> packetType) {
 		return new AbstractMap.SimpleEntry<>(packetType, id);
 	}
 
 	@SuppressWarnings("serial")
 	@SafeVarargs
-	protected final Map<Class<? extends IPacketServer<Player>>, Integer> registerOf(
-			Entry<Class<? extends IPacketServer<Player>>, Integer>... entrys) {
-		return new HashMap<Class<? extends IPacketServer<Player>>, Integer>() {
+	protected final Map<Class<? extends IPacketServer<Type>>, Integer> registerS(
+			Entry<Class<? extends IPacketServer<Type>>, Integer>... entrys) {
+		return new HashMap<Class<? extends IPacketServer<Type>>, Integer>() {
 			{
 				// Iterates over every supplied entry and appends it to the map
-				for (Entry<Class<? extends IPacketServer<Player>>, Integer> t : entrys)
+				for (Entry<Class<? extends IPacketServer<Type>>, Integer> t : entrys)
 					put(t.getKey(), t.getValue());
 			}
 		};
@@ -175,7 +174,7 @@ public abstract class Nethandler<Type> {
 	
 	@SafeVarargs
 	@SuppressWarnings({ "serial"})
-	protected final Map<Integer, Entry<Class<?>, BiConsumer<Type,Object>>> registerOfX(Triple<Integer, Class<?>, BiConsumer<Type,Object>>... entrys){
+	protected final Map<Integer, Entry<Class<?>, BiConsumer<Type,Object>>> registerC(Triple<Integer, Class<?>, BiConsumer<Type,Object>>... entrys){
 		return new HashMap<Integer, Entry<Class<?>, BiConsumer<Type,Object>>>() {{
 			for(Triple<Integer, Class<?>, BiConsumer<Type,Object>> t : entrys) {
 				this.put(t.getFirst(), new SimpleEntry<Class<?>, BiConsumer<Type,Object>>(t.getSecond(),t.getThird()));
