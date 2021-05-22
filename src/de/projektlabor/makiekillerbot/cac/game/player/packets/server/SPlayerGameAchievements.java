@@ -31,7 +31,7 @@ public class SPlayerGameAchievements implements IPacketServer<Player>{
 		JSONArray arr = this.achievements.stream().map(this::achievementToJSON).collect(JSONUtils.JSON_ARRAY_COLLECTOR);
 		
 		// Appends the achievements
-		packet.put("list", arr);
+		packet.put("achievements", arr);
 	}
 	
 	/**
@@ -40,7 +40,8 @@ public class SPlayerGameAchievements implements IPacketServer<Player>{
 	private JSONObject achievementToJSON(Achievement avmt) {
 		return new JSONObject() {{
 			put("name",avmt.getHintName());
-			put("unlocked",avmt.hasBeenFound());
+			put("active",avmt.hasBeenFound());
+			put("id",avmt.getLoadId());
 			if(avmt.hasBeenFound())
 				put("code",avmt.getUnlockId());
 		}};

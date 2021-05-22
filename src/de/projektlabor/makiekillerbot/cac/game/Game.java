@@ -51,7 +51,7 @@ public class Game {
 	private PacketUpdater puRaspiConnection;
 
 	// The connector for all players
-	private NethandlerPlayer connector;
+	private NethandlerPlayer nethandler;
 
 	// The manager for all achievements
 	private AchievementManager avmtManager;
@@ -273,6 +273,9 @@ public class Game {
 		this.puController.onTick();
 		this.puAchievements.onTick();
 		this.puRaspiConnection.onTick();
+		
+		// Update the nethandler
+		this.nethandler.onTick();
 
 	}
 
@@ -360,7 +363,7 @@ public class Game {
 	 */
 	public void broadcastPacketExcept(IPacketServer<Player> packet, Player... players) {
 		// Prepares the packet and converts it to the raw bytes
-		String finPkt = this.connector.getFinalizedPacket(packet).toString();
+		String finPkt = this.nethandler.getFinalizedPacket(packet).toString();
 
 		// Sends the packet to all players that are connected
 		main: for (Player p : this.getPlayers()) {
@@ -393,7 +396,7 @@ public class Game {
 	}
 
 	public List<Player> getPlayers() {
-		return this.connector.getExistingPlayers();
+		return this.nethandler.getExistingPlayers();
 	}
 
 	public RaspberryPi getRaspberrypi() {
@@ -401,7 +404,7 @@ public class Game {
 	}
 
 	public void setConnector(NethandlerPlayer connector) {
-		this.connector = connector;
+		this.nethandler = connector;
 	}
 	public void setRaspberrypi(RaspberryPi raspberrypi) {
 		this.raspberrypi = raspberrypi;

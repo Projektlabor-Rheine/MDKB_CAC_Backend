@@ -22,7 +22,7 @@ public class Timer {
 	 * @param millis the amount of millis that are needed to be reached
 	 */
 	public boolean hasReached(long millis) {
-		return System.currentTimeMillis()-this.executeUnixTime > millis;
+		return this.getConnectedTime() > millis;
 	}
 	
 	/**
@@ -41,5 +41,9 @@ public class Timer {
 	
 	public long getStartTimeUnix() {
 		return this.executeUnixTime;
+	}
+	
+	public long getConnectedTime() {
+		return System.currentTimeMillis()-this.executeUnixTime;
 	}
 }

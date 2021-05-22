@@ -43,7 +43,8 @@ public class SPlayerGamePlayers implements IPacketServer<Player> {
 		obj.put("connected", p.getConnection() != null);
 		obj.put("pos", p.getQueueIndex());
 		obj.put("name", p.getUsername());
-		if(p.getConnection() != null)
+		obj.put("color", p.getColor());
+		if(p.getConnection() == null)
 			obj.put("timer", p.getConnectionTimer().getStartTimeUnix());
 		
 		return obj;

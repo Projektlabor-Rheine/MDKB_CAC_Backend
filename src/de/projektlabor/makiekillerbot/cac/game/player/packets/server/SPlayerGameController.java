@@ -24,7 +24,7 @@ public class SPlayerGameController implements IPacketServer<Player>{
 	@Override
 	public void writePacketData(JSONObject packet) {
 		packet.put("uuid",this.controller.getPlayer().getUUID());
-		packet.put("until", this.controller.getControllerUntil());
+		packet.put("time", this.controller.getControllerUntil());
 	}
 
 }

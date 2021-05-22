@@ -67,7 +67,6 @@ public class Player{
 		// Sends the raw packet-data
 		this.sendRawPacket(finPkt.toString());
 	}
-
 	
 	public int getQueueIndex() {
 		return this.queueIndex;

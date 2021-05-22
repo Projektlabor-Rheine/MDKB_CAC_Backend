@@ -29,14 +29,28 @@ public class SPlayerInit implements IPacketServer<Player> {
 	@Override
 	public void writePacketData(JSONObject packet) {
 		// Writes the game's players
-		new SPlayerGamePlayers(this.game.getPlayers()).writePacketData(packet);
+		this.appendPacketUnderName(packet, null, new SPlayerGamePlayers(this.game.getPlayers()));
 		// Writes the games achievements
-		new SPlayerGameAchievements(this.game.getAchievementManager().getLoadedAchievements()).writePacketData(packet);
+		this.appendPacketUnderName(packet, null, new SPlayerGameAchievements(this.game.getAchievementManager().getLoadedAchievements()));
 		// Writes the game-controller
-		new SPlayerGameController(this.game.getController()).writePacketData(packet);
+		this.appendPacketUnderName(packet, "controller", new SPlayerGameController(this.game.getController()));
 		
 		// Writes the players profile
 		packet.put("profile", this.convertPlayerToProfile(this.profile));
+	}
+	
+	/**
+	 * Appends the given packet under the name to the parentPacket.
+	 * If the name is not given, it just writes the whole packet-content into the parent
+	 */
+	private void appendPacketUnderName(JSONObject parentPacket,String name,IPacketServer<Player> packet) {
+		if(name == null)
+			packet.writePacketData(parentPacket);
+		else {			
+			JSONObject pktObj = new JSONObject();
+			packet.writePacketData(pktObj);
+			parentPacket.put(name, pktObj);
+		}
 	}
 	
 	/**
@@ -48,6 +62,7 @@ public class SPlayerInit implements IPacketServer<Player> {
 		obj.put("uuid", p.getUUID());
 		obj.put("pos", p.getQueueIndex());
 		obj.put("name", p.getUsername());
+		obj.put("color", p.getColor());
 		return obj;
 	}
 	

@@ -3,6 +3,7 @@ package de.projektlabor.makiekillerbot.cac.game.player;
 import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -22,6 +23,7 @@ import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGame
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGamePlayers;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGameRaspiStatus;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerInit;
+import de.projektlabor.makiekillerbot.cac.util.Timer;
 
 @WebSocket
 public class NethandlerPlayer extends Nethandler<Player> {
@@ -35,6 +37,9 @@ public class NethandlerPlayer extends Nethandler<Player> {
 	// Contains all current connected and timeouted players
 	private final List<Player> existingPlayers = Collections.synchronizedList(new ArrayList<Player>());
 
+	// Open connections that are not validated to be players yet
+	private final Map<Session,Timer> startedConnections = Collections.synchronizedMap(new HashMap<Session,Timer>());
+	
 	/**
 	 * @param game
 	 *            reference to the main game
@@ -64,27 +69,55 @@ public class NethandlerPlayer extends Nethandler<Player> {
 	@Override
 	public Map<Class<? extends IPacketServer<Player>>, Integer> registerServerPackets() {
 		return registerS(
-			registerS(1,SPlayerGamePlayers.class),
-			registerS(2,SPlayerInit.class),
-			registerS(3,SPlayerGameAchievements.class),
-			registerS(4,SPlayerGameController.class),
-			registerS(5,SPlayerGameRaspiStatus.class)
+			registerS(10,SPlayerInit.class),
+			registerS(11,SPlayerGamePlayers.class),
+			registerS(12,SPlayerGameAchievements.class),
+			registerS(13,SPlayerGameController.class),
+			registerS(14,SPlayerGameRaspiStatus.class)
 		);
 	}
 
-	@Override
-	public void onConnect(Session session) {
+	/**
+	 * Tick-update method that executes every few seconds or so
+	 */
+	public void onTick() {
+		
+		// TODO: Maybe make better and reduce load by giving a player array to createPlayer
+		
+		// Gets all players that are now validated
+		Session[] validPlayers =
+		// Gets all started (not yet validated) connections
+		this.startedConnections.entrySet().stream()
+		// Filters all that have been active for at least 500ms
+		.filter(i->i.getValue().getConnectedTime() > 500)
+		// Maps them to players
+		.map(i->i.getKey()).toArray(Session[]::new);
+		
+		// Maps them to new players
+		for(Session s : validPlayers)
+			this.createPlayer(s);
+	}
+	
+	/**
+	 * Creates a new player (or gets and existing one) from a connection.
+	 * Will be called once a connection has been validated
+	 * @param connection the new connection
+	 */
+	public void createPlayer(Session connection) {
+		// Removes the session from the started ones
+		this.startedConnections.remove(connection);
+		
 		// Gets the player if he already exists
-		Optional<Player> optPlayer = this.getExistingPlayer(session);
+		Optional<Player> optPlayer = this.getExistingPlayer(connection);
 
 		// Gets or creates the player
 		Player p = optPlayer.isPresent() ? optPlayer.get()
-				: new Player(this, this.generateUnusedUUID(),this.pconfig.getRandomPlayerName(), this.pconfig.getRandomPlayerColor(),session, this.existingPlayers.size());
+				: new Player(this, this.generateUnusedUUID(),this.pconfig.getRandomPlayerName(), this.pconfig.getRandomPlayerColor(),connection, this.existingPlayers.size());
 
 		// Checks if the player got found
 		if (optPlayer.isPresent()) {
 			// Updates the connection
-			p.setConnection(session);
+			p.setConnection(connection);
 			// Executes the rejoin event
 			this.game.onPlayerRejoin(p);
 		} else {
@@ -94,17 +127,26 @@ public class NethandlerPlayer extends Nethandler<Player> {
 			this.game.onNewPlayerJoined(p);
 		}
 	}
+	
+	@Override
+	public void onConnect(Session session) {
+		// Appends the new connection
+		this.startedConnections.put(session, new Timer());
+	}
 
 	@Override
 	public void onDisconnect(Session session, int statusCode, String reason) {
-		// Searches the player
-		Player p = this.getExistingPlayers().stream().filter(i -> session.equals(i.getConnection())).findFirst().get();
-		
-		// Removes the session
-		p.setConnection(null);
-		
-		// Executes the event
-		this.game.onPlayerDisconnected(p);
+		// Checks if the connection has been valid so far
+		if(this.startedConnections.remove(session) == null) {
+			// Searches the player
+			Player p = this.getExistingPlayers().stream().filter(i -> session.equals(i.getConnection())).findFirst().get();		
+			
+			// Removes the session
+			p.setConnection(null);
+			
+			// Executes the event
+			this.game.onPlayerDisconnected(p);			
+		}
 	}
 	
 	/**
