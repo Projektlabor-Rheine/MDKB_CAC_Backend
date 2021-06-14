@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import de.projektlabor.makiekillerbot.cac.config.loading.ConfigLoadException;
 import de.projektlabor.makiekillerbot.cac.config.loading.Loader;
+import de.projektlabor.makiekillerbot.cac.config.loading.loaders.IntLoader;
 import de.projektlabor.makiekillerbot.cac.config.loading.loaders.Longloader;
 import de.projektlabor.makiekillerbot.cac.config.loading.loaders.Stringloader;
 
@@ -36,6 +37,7 @@ public class Config {
 		// Registers some default loaders
 		this.registerConfigLoader(new Longloader());
 		this.registerConfigLoader(new Stringloader());
+		this.registerConfigLoader(new IntLoader());
 	}
 	
 	/**

@@ -47,11 +47,14 @@ public class NethandlerPi extends Nethandler<RaspberryPi>{
 			return;
 		}
 		
+		// Gets the time that the pi disconnection lasted
+		long lastConnectionTime = this.pi.getConnectedSince();
+		
 		// Updates the pi connection
 		this.pi.updateConnection(session);
 		
 		// Executes the event
-		this.logic.onRaspiConnect();
+		this.logic.onRaspiConnect(lastConnectionTime);
 	}
 
 	@Override
@@ -72,7 +75,7 @@ public class NethandlerPi extends Nethandler<RaspberryPi>{
 	@Override
 	public Map<Class<? extends IPacketServer<RaspberryPi>>, Integer> registerServerPackets() {
 		return registerS(
-			registerS(1,SPiControllsupdate.class)
+			registerS(0,SPiControllsupdate.class)
 		);
 	}
 

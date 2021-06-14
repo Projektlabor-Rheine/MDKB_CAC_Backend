@@ -2,6 +2,7 @@ package de.projektlabor.makiekillerbot.cac.game.player;
 
 import java.net.HttpCookie;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import de.projektlabor.makiekillerbot.cac.connection.Nethandler;
 import de.projektlabor.makiekillerbot.cac.connection.packets.IPacketServer;
 import de.projektlabor.makiekillerbot.cac.game.Game;
+import de.projektlabor.makiekillerbot.cac.game.player.packets.client.CPlayerControllsupdate;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.client.CPlayerInitReqeust;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGameAchievements;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGameController;
@@ -62,7 +64,8 @@ public class NethandlerPlayer extends Nethandler<Player> {
 	@Override
 	public Map<Integer, Entry<Class<?>, BiConsumer<Player, Object>>> registerClientPackets() {
 		return registerC(
-			registerC(1,CPlayerInitReqeust.class,this.game::onPlayerSendInitRequest)
+			registerC(1,CPlayerInitReqeust.class,this.game::onPlayerSendInitRequest),
+			registerC(0,CPlayerControllsupdate.class,this.game::onPlayerSendKeypress)
 		);
 	}
 
@@ -73,7 +76,8 @@ public class NethandlerPlayer extends Nethandler<Player> {
 			registerS(11,SPlayerGamePlayers.class),
 			registerS(12,SPlayerGameAchievements.class),
 			registerS(13,SPlayerGameController.class),
-			registerS(14,SPlayerGameRaspiStatus.class)
+			// Packet 14 (Profile update) is not used currently
+			registerS(15,SPlayerGameRaspiStatus.class)
 		);
 	}
 
@@ -95,37 +99,42 @@ public class NethandlerPlayer extends Nethandler<Player> {
 		
 		// Maps them to new players
 		for(Session s : validPlayers)
-			this.createPlayer(s);
+			this.createPlayers(s);
 	}
 	
 	/**
-	 * Creates a new player (or gets and existing one) from a connection.
-	 * Will be called once a connection has been validated
-	 * @param connection the new connection
+	 * Creates players (or gets the existing ones) for all the connections.
+	 * Connections that are given are validated
+	 * @param connections the new connections
 	 */
-	public void createPlayer(Session connection) {
-		// Removes the session from the started ones
-		this.startedConnections.remove(connection);
+	private void createPlayers(Session... connections) {
 		
-		// Gets the player if he already exists
-		Optional<Player> optPlayer = this.getExistingPlayer(connection);
-
-		// Gets or creates the player
-		Player p = optPlayer.isPresent() ? optPlayer.get()
-				: new Player(this, this.generateUnusedUUID(),this.pconfig.getRandomPlayerName(), this.pconfig.getRandomPlayerColor(),connection, this.existingPlayers.size());
-
-		// Checks if the player got found
-		if (optPlayer.isPresent()) {
-			// Updates the connection
-			p.setConnection(connection);
-			// Executes the rejoin event
-			this.game.onPlayerRejoin(p);
-		} else {
-			// Adds the new player
-			this.existingPlayers.add(p);
-			// Executes the join event with the new player
-			this.game.onNewPlayerJoined(p);
-		}
+		// Maps all new session to players (disconnected ones or new ones)
+		// and handles the joining
+		Player[] joinedPlayers = Arrays.stream(connections)
+		.map(con->{
+			// Removes the session from the started ones
+			this.startedConnections.remove(con);
+			// Gets the player if he already exists
+			Optional<Player> optPlayer = this.getExistingPlayer(con);
+	
+			// Gets or creates the player
+			Player p = optPlayer.isPresent() ? optPlayer.get()
+					: new Player(this, this.generateUnusedUUID(),this.pconfig.getRandomPlayerName(), this.pconfig.getRandomPlayerColor(),con, this.existingPlayers.size());
+	
+			// Checks if the player got found
+			if (optPlayer.isPresent())
+				// Updates the connection
+				p.setConnection(con);
+			else
+				// Adds the new player
+				this.existingPlayers.add(p);
+			
+			return p;
+		}).toArray(Player[]::new);
+		
+		// Executes the event
+		this.game.onPlayersJoined(joinedPlayers);
 	}
 	
 	@Override

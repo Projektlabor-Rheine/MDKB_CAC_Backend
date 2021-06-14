@@ -36,9 +36,11 @@ public class CPlayerControllsupdate implements IPacketClient<Player>{
 	
 	@Override
 	public void readPacketData(JSONObject packet) throws Exception {
+		System.out.println(packet);
 		// Iterates over all known-keys
 		for(byte i=0;i<KEYS.length;i++)
 			// Gets the pressed-status and insert it into the array
 			this.pressedKeys[i] = packet.getBoolean(KEYS[i]);
 	}
+	
 }

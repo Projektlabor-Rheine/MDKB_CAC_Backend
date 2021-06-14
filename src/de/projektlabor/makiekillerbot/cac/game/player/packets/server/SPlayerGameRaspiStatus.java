@@ -22,9 +22,7 @@ public class SPlayerGameRaspiStatus implements IPacketServer<Player>{
 
 	@Override
 	public void writePacketData(JSONObject packet) {
-		packet.put("connected", this.hasConnection);
+		packet.put("rpistatus", this.hasConnection);
 	}
-	
-	
 	
 }

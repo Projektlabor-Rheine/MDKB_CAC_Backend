@@ -34,7 +34,9 @@ public class Gameloop implements Runnable{
 			try {
 				// Delay for the cpu
 				Thread.sleep(this.CPU_DELAY);
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			
 			// Updates the cleanup timer
 			if(this.cleanupTimer.hasReachedIfReset(this.CLEANUP_LOOP))

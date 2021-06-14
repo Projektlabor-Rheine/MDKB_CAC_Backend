@@ -10,9 +10,11 @@ import de.projektlabor.makiekillerbot.cac.config.Config;
 import de.projektlabor.makiekillerbot.cac.connection.packets.IPacketServer;
 import de.projektlabor.makiekillerbot.cac.game.logic.Controller;
 import de.projektlabor.makiekillerbot.cac.game.pi.RaspberryPi;
+import de.projektlabor.makiekillerbot.cac.game.pi.packets.server.SPiControllsupdate;
 import de.projektlabor.makiekillerbot.cac.game.player.NethandlerPlayer;
 import de.projektlabor.makiekillerbot.cac.game.player.Player;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.PacketUpdater;
+import de.projektlabor.makiekillerbot.cac.game.player.packets.client.CPlayerControllsupdate;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.client.CPlayerInitReqeust;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGameAchievements;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGameController;
@@ -66,7 +68,7 @@ public class Game {
 		this.config=config;
 		this.gameConfig=gameConfig;
 		this.avmtManager = avmtManager;
-		this.controller = new Controller(gameConfig);
+		this.controller = new Controller(gameConfig,this::sendRaspiStopMovement);
 		avmtManager.setGameReference(this);
 		this.initUpdaters();
 	}
@@ -97,6 +99,8 @@ public class Game {
 				() -> new SPlayerGameRaspiStatus(this.getRaspberrypi().getConnection() != null), 10);
 	}
 
+	
+	
 	/**
 	 * Packet receive event for the initrequest packet
 	 */
@@ -112,6 +116,10 @@ public class Game {
 	 *            the player
 	 */
 	public void onPlayerRemoved(Player... players) {
+
+		// TODO: Remove
+		if(players.length > 0)
+			System.out.println("Removed players: "+Arrays.toString(players));
 		
 		// Gets the controller that has been removed; empty if the controller hasn't been removed
 		Optional<Player> ctrl = Arrays.stream(players).filter(this.controller::isPlayerController).findAny();
@@ -145,65 +153,104 @@ public class Game {
 	 *            the player
 	 */
 	public void onPlayerDisconnected(Player p) {
+
+		// TODO: Remove
+		System.out.println("Disconnected player "+p);
+		
 		// Sets the player connection to disconnected
 		p.setConnection(null);
 		// Sends the update to all players
 		this.puPlayer.sendAndReset(p);
+		
+		// Checks if the controller got disconnected
+		if(this.controller.isPlayerController(p))
+			this.sendRaspiStopMovement();
 	}
 
 	/**
-	 * Executes when an existing player rejoines
+	 * Executes when players join (or rejoin)
 	 * 
-	 * @param p
-	 *            the player
+	 * @param players
+	 *            all players that joined or rejoined
 	 */
-	public void onPlayerRejoin(Player p) {
-		this.onNewPlayerJoined(p);
+	public void onPlayersJoined(Player... players) {
+
+		System.out.println("Joined players "+Arrays.toString(players));
+
+		// If there is a new controller
+		boolean hasNewControllerFlag = false;
+		
+		// Iterates over all joined players
+		for(Player p : players) {			
+			// Checks if no player is currently in control
+			if (!this.controller.doesControllerExists()) {
+				// Sets the connected player as the next controller
+				this.nextController(p);
+				
+				// Update the ctrl-flag
+				hasNewControllerFlag = true;
+			}
+			// Checks if a previous controller has already outrun his time
+			else if (this.performJoinAction) {
+				this.performJoinAction = false;
+				this.controller.setControllerUntil(System.currentTimeMillis() + this.gameConfig.getControllerTimeWhenNewJoin());
+
+				// Update the ctrl-flag
+				hasNewControllerFlag = true;
+			}
+			
+			// Sends the init-packet to the player
+			p.sendPacket(new SPlayerInit(this, p));
+		}
+		
+		// Sends the player-update packet to all players except the newly joined ones
+		this.puPlayer.sendAndReset(players);
+		
+		// Checks if there is a new controller
+		if(hasNewControllerFlag)
+			// Sends the new-controller packet to all except the new-joined ones
+			this.puController.sendAndReset(players);
+		
 	}
 
 	/**
-	 * Executes when a new player joines
-	 * 
-	 * @param p
-	 *            the player
+	 * Packet receive event for the update key event from the players
 	 */
-	public void onNewPlayerJoined(Player p) {
-		// Checks if no player is currently in control
-		if (!this.controller.doesControllerExists()) {
-			// Sets the connected player as the next controller
-			this.nextController(p);
-			// Sends the player-update packet to all players except the newly joined one
-			this.puPlayer.sendAndReset(p);
-			this.puController.sendAndReset(p);
-		}
-		// Checks if a previous controller has already outrun his time
-		else if (this.performJoinAction) {
-			this.performJoinAction = false;
-			this.controller.setControllerUntil(System.currentTimeMillis() + this.gameConfig.getControllerTimeWhenNewJoin());
+	public void onPlayerSendKeypress(Player p,CPlayerControllsupdate pkt) {
 
-			// Sends the player-update packet to all players except the newly joined one
-			this.puPlayer.sendAndReset(p);
-			this.puController.sendAndReset(p);
-		} else {
-			// Sends the player-update packet to all players except the newly joined one
-			this.puPlayer.sendAndReset(p);
-		}
-
-		// Sends the init-packet to the player
-		p.sendPacket(new SPlayerInit(this, p));
+		// TODO: Remove
+		System.out.println(p+" send keyupdate: "+pkt);
+		
+		// Checks if the player is the controller
+		if(!this.controller.isPlayerController(p))
+			return;
+		
+		// Checks if the pi is disconnected
+		if(!this.raspberrypi.isConnected())
+			return;
+		
+		// Sends the packet
+		this.raspberrypi.sendPacket(new SPiControllsupdate(pkt));
 	}
-
+	
+	
+	
 	/**
 	 * Executes when the raspi gets connected (or reconnected)
+	 * @param lastConnectionTime how long the pi has been disconnected
 	 */
-	public void onRaspiConnect() {
+	public void onRaspiConnect(long lastConnectionTime) {
+		
+		// TODO: Remove
+		System.out.println("New rpi con");
+		
 		// Checks if there is currently a player controlling the pi
 		if (this.controller.doesControllerExists()) {
-
+			
 			// Calculates the time that the pi has been disconnected relative to the
 			// controller time
 			long disconnectedTime = System.currentTimeMillis()
-					- Math.max(this.controller.getControllerSinceTime(), this.getRaspberrypi().getConnectedSince());
+					- Math.max(this.controller.getControllerSinceTime(), lastConnectionTime);
 
 			// Appends the calculated time
 			this.controller.greantAdditionalTime(disconnectedTime);
@@ -220,6 +267,10 @@ public class Game {
 	 * Executes when the raspi gets disconnected
 	 */
 	public void onRaspiDisconnect() {
+
+		// TODO: Remove
+		System.out.println("Rpi left");
+		
 		// Resets the join-action
 		this.performJoinAction = false;
 
@@ -227,6 +278,8 @@ public class Game {
 		this.puController.sendAndReset();
 	}
 
+	
+	
 	/**
 	 * Executes when a new achievement get's found
 	 * 
@@ -299,6 +352,7 @@ public class Game {
 		this.onPlayerRemoved(timeouted);
 	}
 
+	
 	/**
 	 * Sets all players back to a valid position (So no gab opens in the queue) and
 	 * sets the next controller if the current controller is null
@@ -408,6 +462,18 @@ public class Game {
 	}
 	public void setRaspberrypi(RaspberryPi raspberrypi) {
 		this.raspberrypi = raspberrypi;
+	}
+	
+	/**
+	 * Sends a packet to the pi that lets him stop moving
+	 */
+	public void sendRaspiStopMovement() {
+		// Checks if the rpi is not connected
+		if(!this.raspberrypi.isConnected())
+			return;
+		
+		// Sends the packet
+		this.raspberrypi.sendPacket(new SPiControllsupdate());
 	}
 	
 	public Controller getController() {

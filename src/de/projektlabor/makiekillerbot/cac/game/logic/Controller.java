@@ -18,14 +18,28 @@ public class Controller {
 	// Current expectation until the player will be the controller
 	private long controllerUntil;
 	
-	public Controller(GameConfig cfg) {
+	// Event listener for the controller update
+	private Runnable onUpdate;
+	
+	public Controller(GameConfig cfg,Runnable onUpdate) {
 		this.cfg=cfg;
+		this.onUpdate=onUpdate;
 	}
 	
+	/**
+	 * Updates the controller and inserts the next player.
+	 * @param player the next controller (can be null)
+	 */
 	public void nextController(Player player) {
+		// TODO
+		System.out.println("New controller "+player);
 		this.player = player;
 		this.controllerSince = System.currentTimeMillis();
 		this.controllerUntil = System.currentTimeMillis() + this.cfg.getControllingTime();
+		// Executes the event
+		this.onUpdate.run();
+		// TODO: Remove
+		System.out.println("Until: "+this.controllerUntil);
 	}
 	
 	public long getControllerUntil() {

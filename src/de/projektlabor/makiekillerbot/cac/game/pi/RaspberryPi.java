@@ -72,6 +72,9 @@ public class RaspberryPi {
 	}
 	
 	public void updateConnection(Session connection) {
+		// TODO: Remove
+		System.out.println("Connection update: "+connection);
+		
 		this.connection = connection;
 		this.connectedSince = System.currentTimeMillis();
 	}

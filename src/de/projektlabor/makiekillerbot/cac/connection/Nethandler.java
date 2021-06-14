@@ -121,8 +121,10 @@ public abstract class Nethandler<Type> {
 			// Creates a new class with the packet-handler
 			IPacketClient<Type> packet = (IPacketClient<Type>) pktHandler.getKey().newInstance();
 
+			
+			
 			// Reads in the packet data
-			packet.readPacketData(pkt);
+			packet.readPacketData(pkt.getJSONObject("data"));
 			// Executes handler handler for that packet
 			pktHandler.getValue().accept(con, (T) packet);
 		} catch (Exception e) {
@@ -148,7 +150,7 @@ public abstract class Nethandler<Type> {
 	 */
 
 	@SuppressWarnings("unchecked")
-	protected final <T extends IPacketServer<Type>> Triple<Integer, Class<?>, BiConsumer<Type,Object>> registerC(
+	protected final <T extends IPacketClient<Type>> Triple<Integer, Class<?>, BiConsumer<Type,Object>> registerC(
 			Integer id, Class<?> packetType, BiConsumer<Type,T> handler) {
 		 return new Triple<Integer, Class<?>, BiConsumer<Type,Object>>(id, packetType, (a,b)->handler.accept(a, (T)b));
 	}

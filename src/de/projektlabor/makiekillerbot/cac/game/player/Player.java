@@ -100,4 +100,9 @@ public class Player{
 	public Timer getConnectionTimer() {
 		return this.connectionTimer;
 	}
+	
+	@Override
+	public String toString() {
+		return this.uuid+" - "+this.username;
+	}
 }

@@ -20,7 +20,6 @@ public class SPlayerInit implements IPacketServer<Player> {
 	// The profile of the player
 	private Player profile;
 	
-	
 	public SPlayerInit(Game game,Player profile) {
 		this.game=game;
 		this.profile=profile;
@@ -33,7 +32,9 @@ public class SPlayerInit implements IPacketServer<Player> {
 		// Writes the games achievements
 		this.appendPacketUnderName(packet, null, new SPlayerGameAchievements(this.game.getAchievementManager().getLoadedAchievements()));
 		// Writes the game-controller
-		this.appendPacketUnderName(packet, "controller", new SPlayerGameController(this.game.getController()));
+		this.appendPacketUnderName(packet, null, new SPlayerGameController(this.game.getController()));
+		// Writes the current rpi-status
+		this.appendPacketUnderName(packet, null, new SPlayerGameRaspiStatus(this.game.getRaspberrypi().isConnected()));
 		
 		// Writes the players profile
 		packet.put("profile", this.convertPlayerToProfile(this.profile));

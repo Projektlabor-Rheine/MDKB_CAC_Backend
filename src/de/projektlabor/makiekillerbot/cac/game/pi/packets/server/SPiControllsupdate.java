@@ -11,6 +11,11 @@ public class SPiControllsupdate implements IPacketServer<RaspberryPi>{
 	// The pressed status of all keys. Uses the indexes in CPlayerControllsupdate
 	public boolean[] pressedKeys = new boolean[CPlayerControllsupdate.KEYS.length];
 	
+	// Creates a packet with all keys disabled
+	public SPiControllsupdate() {
+		this.pressedKeys = new boolean[CPlayerControllsupdate.KEYS.length];
+	}
+	
 	public SPiControllsupdate(boolean... keys) {
 		this.pressedKeys = keys;
 	}

@@ -2,6 +2,7 @@ package de.projektlabor.makiekillerbot.cac.game;
 
 import de.projektlabor.makiekillerbot.cac.config.SubConfig;
 import de.projektlabor.makiekillerbot.cac.config.loading.Loadable;
+import de.projektlabor.makiekillerbot.cac.config.loading.loaders.IntLoader;
 import de.projektlabor.makiekillerbot.cac.config.loading.loaders.Longloader;
 import de.projektlabor.makiekillerbot.cac.config.loading.loaders.Stringloader;
 import spark.Request;
@@ -27,6 +28,9 @@ public class GameConfig extends SubConfig {
 	@Loadable(name="404_page_text",loader=Stringloader.class)
 	private String notFoundText;
 	
+	@Loadable(name="port", loader=IntLoader.class)
+	private int port;
+	
 	public GameConfig() {
 		this.enableReflectedConfig();
 	}
@@ -37,6 +41,7 @@ public class GameConfig extends SubConfig {
 		this.controllingTime = 1000 * 60 * 5;
 		this.rejoinTime = 10 * 1000;
 		this.notFoundText = "Marten ist schuld";
+		this.port = 80;
 	}
 	
 	
@@ -60,5 +65,8 @@ public class GameConfig extends SubConfig {
 	}
 	public long getRejoinTime() {
 		return this.rejoinTime;
+	}
+	public int getPort() {
+		return this.port;
 	}
 }

@@ -61,7 +61,7 @@ public class AchievementManager extends SubConfig{
 			code = optAvmt.get().getQRCode();
 			
 			// Checks if the achievement hasn't been found yet
-			if(avmt.hasBeenFound()) {				
+			if(!avmt.hasBeenFound()) {				
 				// Updates the achievement
 				avmt.setHasBeenFound(true);
 				

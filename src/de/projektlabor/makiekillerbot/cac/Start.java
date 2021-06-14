@@ -3,6 +3,7 @@ package de.projektlabor.makiekillerbot.cac;
 import static spark.Spark.awaitInitialization;
 import static spark.Spark.get;
 import static spark.Spark.init;
+import static spark.Spark.initExceptionHandler;
 import static spark.Spark.port;
 import static spark.Spark.staticFiles;
 import static spark.Spark.webSocket;
@@ -25,6 +26,14 @@ import de.projektlabor.makiekillerbot.cac.game.player.PlayerConfig;
 public class Start {
 	
 	public static void main(String[] args) {
+		// Init's the exception-handler
+		initExceptionHandler((e) -> {
+			System.out.println("Failed to start Server: "+e.getMessage());
+			// TODO: Debug remove
+			e.printStackTrace();
+			System.exit(-1);
+		});
+		
 		// Creates the config
 		Config cfg = new Config(new File("config.json"));
 		
@@ -60,7 +69,7 @@ public class Start {
 		Game game = new Game(cfg,gcfg,avtm);
 		
 		// Settings for the webserver
-		port(80);
+		port(gcfg.getPort());
 
 		// Registers the static webpage for the players
 		staticFiles.location("/webpage");
