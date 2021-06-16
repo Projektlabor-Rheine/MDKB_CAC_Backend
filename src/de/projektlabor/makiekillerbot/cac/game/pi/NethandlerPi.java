@@ -11,6 +11,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import de.projektlabor.makiekillerbot.cac.connection.Nethandler;
 import de.projektlabor.makiekillerbot.cac.connection.packets.IPacketServer;
 import de.projektlabor.makiekillerbot.cac.game.Game;
+import de.projektlabor.makiekillerbot.cac.game.pi.packets.client.CPiLinedetection;
 import de.projektlabor.makiekillerbot.cac.game.pi.packets.server.SPiControllsupdate;
 
 @WebSocket
@@ -69,7 +70,9 @@ public class NethandlerPi extends Nethandler<RaspberryPi>{
 
 	@Override
 	public Map<Integer, Entry<Class<?>, BiConsumer<RaspberryPi, Object>>> registerClientPackets() {
-		return registerC();
+		return registerC(
+			registerC(0,CPiLinedetection.class,this.logic::onRaspiUpdateLinedetection)
+		);
 	}
 
 	@Override

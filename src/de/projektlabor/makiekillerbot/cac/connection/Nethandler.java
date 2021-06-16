@@ -121,8 +121,6 @@ public abstract class Nethandler<Type> {
 			// Creates a new class with the packet-handler
 			IPacketClient<Type> packet = (IPacketClient<Type>) pktHandler.getKey().newInstance();
 
-			
-			
 			// Reads in the packet data
 			packet.readPacketData(pkt.getJSONObject("data"));
 			// Executes handler handler for that packet
@@ -138,8 +136,8 @@ public abstract class Nethandler<Type> {
 	// TODO Debug: Remove
 	@OnWebSocketError
 	public void error(Throwable e) {
-		System.out.println("Bad error");
-		e.printStackTrace();
+		System.out.println("Bad error, just a websocket error or smth. maybe just ignore");
+//		e.printStackTrace();
 	}
 
 	/**

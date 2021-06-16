@@ -25,6 +25,7 @@ import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGame
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGamePlayers;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGameRaspiStatus;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerInit;
+import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerLineDetected;
 import de.projektlabor.makiekillerbot.cac.util.Timer;
 
 @WebSocket
@@ -77,7 +78,8 @@ public class NethandlerPlayer extends Nethandler<Player> {
 			registerS(12,SPlayerGameAchievements.class),
 			registerS(13,SPlayerGameController.class),
 			// Packet 14 (Profile update) is not used currently
-			registerS(15,SPlayerGameRaspiStatus.class)
+			registerS(15,SPlayerGameRaspiStatus.class),
+			registerS(104,SPlayerLineDetected.class)
 		);
 	}
 

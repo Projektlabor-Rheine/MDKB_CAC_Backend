@@ -10,6 +10,7 @@ import de.projektlabor.makiekillerbot.cac.config.Config;
 import de.projektlabor.makiekillerbot.cac.connection.packets.IPacketServer;
 import de.projektlabor.makiekillerbot.cac.game.logic.Controller;
 import de.projektlabor.makiekillerbot.cac.game.pi.RaspberryPi;
+import de.projektlabor.makiekillerbot.cac.game.pi.packets.client.CPiLinedetection;
 import de.projektlabor.makiekillerbot.cac.game.pi.packets.server.SPiControllsupdate;
 import de.projektlabor.makiekillerbot.cac.game.player.NethandlerPlayer;
 import de.projektlabor.makiekillerbot.cac.game.player.Player;
@@ -21,6 +22,7 @@ import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGame
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGamePlayers;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerGameRaspiStatus;
 import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerInit;
+import de.projektlabor.makiekillerbot.cac.game.player.packets.server.SPlayerLineDetected;
 
 /**
  * Provides all basic functions of the game. Holds all game objects
@@ -278,6 +280,14 @@ public class Game {
 		this.puController.sendAndReset();
 	}
 
+	/**
+	 * Packet receive that executes when the raspi detectes a line (or stops detecting a line)
+	 */
+	public void onRaspiUpdateLinedetection(RaspberryPi p, CPiLinedetection pkt) {
+		// TODO
+		System.out.println("Line detection update: "+pkt.isLineDetected);
+		this.broadcastPacket(new SPlayerLineDetected(pkt.isLineDetected));
+	}
 	
 	
 	/**
